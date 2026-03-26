@@ -61,6 +61,8 @@ export default {
     disabled: Boolean,
     required: Boolean,
     typeable: Boolean,
+    parseFormat: String,
+    validateOnKeyup: Boolean,
     bootstrapStyling: Boolean,
     useUtc: Boolean
   },
