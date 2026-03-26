@@ -240,6 +240,24 @@ const utils = {
    */
   validateDateInput (val) {
     return val === null || val instanceof Date || typeof val === 'string' || typeof val === 'number'
+  },
+
+  toMomentFormat (format) {
+    // Step 1: Strip unparseable tokens (must happen before d->D conversion)
+    let str = format
+      .replace(/su/, '')
+      .replace(/D(?!e|é|i)/, '')
+      .replace(/\s+/g, ' ')
+      .trim()
+
+    // Step 2: Replace tokens longest-first to avoid partial matches
+    str = str
+      .replace(/dd/g, 'DD')
+      .replace(/d/g, 'D')
+      .replace(/yyyy/g, 'YYYY')
+      .replace(/yy/g, 'YY')
+
+    return str
   }
 }
 

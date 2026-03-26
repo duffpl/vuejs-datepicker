@@ -181,3 +181,37 @@ describe('UTC functions', () => {
     expect(utcUtils.setDate(date, 31)).toEqual(date.setUTCDate(31))
   })
 })
+
+describe('toMomentFormat', () => {
+  it('converts dd.MM.yyyy to DD.MM.YYYY', () => {
+    expect(DateUtils.toMomentFormat('dd.MM.yyyy')).toEqual('DD.MM.YYYY')
+  })
+
+  it('converts yyyy-MM-dd to YYYY-MM-DD', () => {
+    expect(DateUtils.toMomentFormat('yyyy-MM-dd')).toEqual('YYYY-MM-DD')
+  })
+
+  it('converts d/M/yy to D/M/YY', () => {
+    expect(DateUtils.toMomentFormat('d/M/yy')).toEqual('D/M/YY')
+  })
+
+  it('converts dd MMM yyyy to DD MMM YYYY', () => {
+    expect(DateUtils.toMomentFormat('dd MMM yyyy')).toEqual('DD MMM YYYY')
+  })
+
+  it('converts MMMM dd, yyyy to MMMM DD, YYYY', () => {
+    expect(DateUtils.toMomentFormat('MMMM dd, yyyy')).toEqual('MMMM DD, YYYY')
+  })
+
+  it('strips D (day abbreviation) token', () => {
+    expect(DateUtils.toMomentFormat('D dd MMM yyyy')).toEqual('DD MMM YYYY')
+  })
+
+  it('strips su (suffix) token', () => {
+    expect(DateUtils.toMomentFormat('dsu MMMM yyyy')).toEqual('D MMMM YYYY')
+  })
+
+  it('handles D and su together', () => {
+    expect(DateUtils.toMomentFormat('D dsu MMMM yyyy')).toEqual('D MMMM YYYY')
+  })
+})
