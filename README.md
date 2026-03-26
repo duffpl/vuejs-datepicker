@@ -1,9 +1,6 @@
 # Datepicker
 
-[![Travis Build](https://img.shields.io/travis/charliekassel/vuejs-datepicker.svg)](https://travis-ci.org/charliekassel/vuejs-datepicker)
-[![Version](https://img.shields.io/npm/v/vuejs-datepicker.svg)](https://www.npmjs.com/package/vuejs-datepicker)
-[![Coveralls github](https://img.shields.io/coveralls/github/charliekassel/vuejs-datepicker.svg)](https://coveralls.io/github/charliekassel/vuejs-datepicker?branch=master)
-[![Downloads](https://img.shields.io/npm/dm/vuejs-datepicker.svg)](https://www.npmjs.com/package/vuejs-datepicker)
+Fork of [charliekassel/vuejs-datepicker](https://github.com/charliekassel/vuejs-datepicker) with format-aware typed date input.
 
 A datepicker Vue component. Compatible with Vue 2.x
 
@@ -143,6 +140,8 @@ Inline always open version
 | disabled                      | Boolean         | false       | If true, disable Datepicker on screen    |
 | required                      | Boolean         | false       | Sets html required attribute on input    |
 | typeable                      | Boolean         | false       | If true, allow the user to type the date |
+| parse-format                  | String          | null        | Moment.js format string for parsing typed input when `format` is a function |
+| validate-on-keyup             | Boolean         | false       | If true, validate typed input on every keyup (legacy behavior) |
 | use-utc                       | Boolean         | false       | use UTC for time calculations            |
 | open-date                     | Date\|String    |             | If set, open on that date                |
 | minimum-view                  | String          | 'day'       | If set, lower-level views won't show     |
@@ -201,6 +200,32 @@ This allow us to use moment, date-fns, globalize or any other library to format 
 </script>
 <datepicker :format="customFormatter"></datepicker>
 ```
+
+#### Typeable date input
+
+When `typeable` is `true`, typed dates are parsed using the `format` prop via [moment.js](https://momentjs.com/) (strict mode). This means the typed input must match the configured format exactly.
+
+For example, with `format="dd.MM.yyyy"`, typing `24.04.2018` will be correctly parsed as April 24, 2018. Without this feature, `Date.parse()` would reject this input or misinterpret it.
+
+``` html
+<datepicker :typeable="true" format="dd.MM.yyyy"></datepicker>
+```
+
+By default, validation only happens when the input loses focus (on blur). To restore the legacy behavior of validating on every keystroke, use `validate-on-keyup`:
+
+``` html
+<datepicker :typeable="true" :validate-on-keyup="true" format="dd.MM.yyyy"></datepicker>
+```
+
+When using a function for `format`, provide `parse-format` with a [moment.js format string](https://momentjs.com/docs/#/parsing/string-format/) so typed input can be parsed:
+
+``` html
+<datepicker :typeable="true" :format="customFormatter" parse-format="DD.MM.YYYY"></datepicker>
+```
+
+If `format` is a function and no `parse-format` is provided, typed input falls back to `Date.parse()`.
+
+**Note:** `moment` is a peer dependency when using `typeable` — make sure it is installed in your project.
 
 ## Disabled Dates
 Dates can be disabled in a number of ways.

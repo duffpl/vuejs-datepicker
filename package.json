@@ -1,6 +1,6 @@
 {
   "name": "vuejs-datepicker",
-  "version": "1.6.2",
+  "version": "1.7.0",
   "description": "A simple Vue.js datepicker component. Supports disabling of dates, inline mode, translations",
   "keywords": [
     "vue",
@@ -18,10 +18,10 @@
   "author": "Charlie Kassel <ck@charliekassel.com>",
   "repository": {
     "type": "git",
-    "url": "https://github.com/charliekassel/vuejs-datepicker"
+    "url": "https://github.com/duffpl/vuejs-datepicker"
   },
   "bugs": {
-    "url": "https://github.com/charliekassel/vuejs-datepicker/issues"
+    "url": "https://github.com/duffpl/vuejs-datepicker/issues"
   },
   "private": false,
   "license": "MIT",
@@ -36,9 +36,9 @@
     "lint",
     "test"
   ],
-  "dependencies": {},
   "peerDependencies": {
-    "vue": "^2.6.10"
+    "vue": "^2.6.10",
+    "moment": "^2.0.0"
   },
   "devDependencies": {
     "@babel/cli": "^7.4.4",
@@ -68,6 +68,7 @@
     "jest": "^24.8.0",
     "jest-serializer-vue": "^2.0.2",
     "lolex": "^1.5.2",
+    "moment": "^2.30.1",
     "opn": "^4.0.2",
     "ora": "^1.2.0",
     "parse5": "^2.1.0",
