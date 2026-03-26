@@ -13,6 +13,8 @@
       :placeholder="placeholder"
       :inputClass="inputClass"
       :typeable="typeable"
+      :parseFormat="parseFormat"
+      :validateOnKeyup="validateOnKeyup"
       :clearButton="clearButton"
       :clearButtonIcon="clearButtonIcon"
       :calendarButton="calendarButton"
@@ -145,6 +147,14 @@ export default {
     disabled: Boolean,
     required: Boolean,
     typeable: Boolean,
+    parseFormat: {
+      type: String,
+      default: null
+    },
+    validateOnKeyup: {
+      type: Boolean,
+      default: false
+    },
     useUtc: Boolean,
     minimumView: {
       type: String,
