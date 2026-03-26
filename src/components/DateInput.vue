@@ -39,6 +39,7 @@
   </div>
 </template>
 <script>
+import moment from 'moment'
 import { makeDateUtils } from '../utils/DateUtils'
 export default {
   props: {
@@ -106,12 +107,28 @@ export default {
     showCalendar () {
       this.$emit('showCalendar')
     },
-    /**
-     * Attempt to parse a typed date
-     * @param {Event} event
-     */
+    getMomentFormat () {
+      if (typeof this.format === 'string') {
+        return this.utils.toMomentFormat(this.format)
+      }
+      if (this.parseFormat) {
+        return this.parseFormat
+      }
+      return null
+    },
+    parseDateFromInput (value) {
+      if (!value) {
+        return null
+      }
+      const momentFormat = this.getMomentFormat()
+      if (momentFormat) {
+        const parsed = moment(value, momentFormat, true)
+        return parsed.isValid() ? parsed.toDate() : null
+      }
+      const timestamp = Date.parse(value)
+      return isNaN(timestamp) ? null : new Date(timestamp)
+    },
     parseTypedDate (event) {
-      // close calendar if escape or enter are pressed
       if ([
         27, // escape
         13 // enter
@@ -119,30 +136,32 @@ export default {
         this.input.blur()
       }
 
-      if (this.typeable) {
-        const typedDate = Date.parse(this.input.value)
-        if (!isNaN(typedDate)) {
+      if (this.typeable && this.validateOnKeyup) {
+        const parsedDate = this.parseDateFromInput(this.input.value)
+        if (parsedDate) {
           this.typedDate = this.input.value
-          this.$emit('typedDate', new Date(this.typedDate))
+          this.$emit('typedDate', parsedDate)
         }
       }
     },
-    /**
-     * nullify the typed date to defer to regular formatting
-     * called once the input is blurred
-     */
     inputBlurred () {
-      if (this.typeable && isNaN(Date.parse(this.input.value))) {
-        this.clearDate()
-        this.input.value = null
-        this.typedDate = null
+      if (this.typeable) {
+        const inputValue = this.input.value
+        if (inputValue) {
+          const parsedDate = this.parseDateFromInput(inputValue)
+          if (parsedDate) {
+            this.typedDate = inputValue
+            this.$emit('typedDate', parsedDate)
+          } else {
+            this.clearDate()
+            this.input.value = null
+            this.typedDate = null
+          }
+        }
       }
 
       this.$emit('closeCalendar')
     },
-    /**
-     * emit a clearDate event
-     */
     clearDate () {
       this.$emit('clearDate')
     }

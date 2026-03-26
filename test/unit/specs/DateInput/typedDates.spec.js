@@ -2,67 +2,160 @@ import DateInput from '@/components/DateInput.vue'
 import {shallow} from '@vue/test-utils'
 import {en} from '@/locale'
 
-describe('DateInput', () => {
+describe('DateInput typed dates', () => {
   let wrapper
 
   beforeEach(() => {
     wrapper = shallow(DateInput, {
       propsData: {
-        format: 'dd MMM yyyy',
+        format: 'dd.MM.yyyy',
         translation: en,
         typeable: true
       }
     })
   })
 
-  it('does not format the date when typed', () => {
-    const dateString = '2018-04-24'
-    wrapper.vm.input.value = dateString
-    expect(wrapper.vm.input.value).toEqual(dateString)
-    wrapper.setData({
-      typedDate: dateString
+  describe('blur-only validation (default)', () => {
+    it('does not emit typedDate on keyup by default', () => {
+      const input = wrapper.find('input')
+      wrapper.vm.input.value = '24.04.2018'
+      input.trigger('keyup')
+      expect(wrapper.emitted().typedDate).not.toBeDefined()
     })
-    wrapper.setProps({
-      selectedDate: new Date(dateString)
+
+    it('parses a valid date on blur using dd.MM.yyyy format', () => {
+      const input = wrapper.find('input')
+      wrapper.vm.input.value = '24.04.2018'
+      input.trigger('blur')
+      expect(wrapper.emitted().typedDate).toBeDefined()
+      expect(wrapper.emitted().typedDate[0][0]).toBeInstanceOf(Date)
+      expect(wrapper.emitted().typedDate[0][0].getFullYear()).toEqual(2018)
+      expect(wrapper.emitted().typedDate[0][0].getMonth()).toEqual(3) // April = 3
+      expect(wrapper.emitted().typedDate[0][0].getDate()).toEqual(24)
     })
-    expect(wrapper.vm.typedDate).toEqual(dateString)
-    expect(wrapper.vm.formattedValue).toEqual(dateString)
-  })
 
-  it('emits the date when typed', () => {
-    const input = wrapper.find('input')
-    wrapper.vm.input.value = '2018-04-24'
-    input.trigger('keyup')
-    expect(wrapper.emitted().typedDate).toBeDefined()
-    expect(wrapper.emitted().typedDate[0][0]).toBeInstanceOf(Date)
-  })
-
-  it('emits closeCalendar when return is pressed', () => {
-    const input = wrapper.find('input')
-    const blurSpy = jest.spyOn(input.element, 'blur')
-    input.trigger('keyup', {keyCode: 13})
-    expect(blurSpy).toBeCalled()
-  })
-
-  it('clears a typed date if it does not parse', () => {
-    const input = wrapper.find('input')
-    wrapper.setData({typedDate: 'not a date'})
-    input.trigger('blur')
-    expect(wrapper.emitted().clearDate).toBeDefined()
-  })
-
-  it('doesn\'t emit the date if typeable=false', () => {
-    const wrapper = shallow(DateInput, {
-      propsData: {
-        format: 'dd MMM yyyy',
-        translation: en,
-        typeable: false
-      }
+    it('clears an invalid date on blur', () => {
+      const input = wrapper.find('input')
+      wrapper.vm.input.value = 'not a date'
+      input.trigger('blur')
+      expect(wrapper.emitted().clearDate).toBeDefined()
     })
-    const input = wrapper.find('input')
-    wrapper.vm.input.value = '2018-04-24'
-    input.trigger('keydown')
-    input.trigger('keyup')
-    expect(wrapper.emitted().typedDate).not.toBeDefined()
+
+    it('clears a date that does not match the format on blur', () => {
+      const input = wrapper.find('input')
+      wrapper.vm.input.value = '2018-04-24'
+      input.trigger('blur')
+      expect(wrapper.emitted().clearDate).toBeDefined()
+    })
+  })
+
+  describe('format-aware parsing with various formats', () => {
+    it('parses yyyy-MM-dd format', () => {
+      wrapper.setProps({ format: 'yyyy-MM-dd' })
+      const input = wrapper.find('input')
+      wrapper.vm.input.value = '2018-04-24'
+      input.trigger('blur')
+      expect(wrapper.emitted().typedDate).toBeDefined()
+      expect(wrapper.emitted().typedDate[0][0].getFullYear()).toEqual(2018)
+      expect(wrapper.emitted().typedDate[0][0].getMonth()).toEqual(3)
+      expect(wrapper.emitted().typedDate[0][0].getDate()).toEqual(24)
+    })
+
+    it('parses MM/dd/yyyy format', () => {
+      wrapper.setProps({ format: 'MM/dd/yyyy' })
+      const input = wrapper.find('input')
+      wrapper.vm.input.value = '04/24/2018'
+      input.trigger('blur')
+      expect(wrapper.emitted().typedDate).toBeDefined()
+      expect(wrapper.emitted().typedDate[0][0].getDate()).toEqual(24)
+    })
+
+    it('parses dd MMM yyyy format', () => {
+      wrapper.setProps({ format: 'dd MMM yyyy' })
+      const input = wrapper.find('input')
+      wrapper.vm.input.value = '24 Apr 2018'
+      input.trigger('blur')
+      expect(wrapper.emitted().typedDate).toBeDefined()
+      expect(wrapper.emitted().typedDate[0][0].getMonth()).toEqual(3)
+    })
+  })
+
+  describe('parseFormat prop with function format', () => {
+    it('uses parseFormat when format is a function', () => {
+      wrapper.setProps({
+        format: (date) => date.toLocaleDateString(),
+        parseFormat: 'DD.MM.YYYY'
+      })
+      const input = wrapper.find('input')
+      wrapper.vm.input.value = '24.04.2018'
+      input.trigger('blur')
+      expect(wrapper.emitted().typedDate).toBeDefined()
+      expect(wrapper.emitted().typedDate[0][0].getDate()).toEqual(24)
+    })
+
+    it('falls back to Date.parse when format is a function and no parseFormat', () => {
+      wrapper.setProps({
+        format: (date) => date.toLocaleDateString()
+      })
+      const input = wrapper.find('input')
+      wrapper.vm.input.value = '2018-04-24'
+      input.trigger('blur')
+      expect(wrapper.emitted().typedDate).toBeDefined()
+    })
+  })
+
+  describe('validateOnKeyup backward compatibility', () => {
+    it('emits typedDate on keyup when validateOnKeyup is true', () => {
+      wrapper.setProps({ validateOnKeyup: true })
+      const input = wrapper.find('input')
+      wrapper.vm.input.value = '24.04.2018'
+      input.trigger('keyup')
+      expect(wrapper.emitted().typedDate).toBeDefined()
+      expect(wrapper.emitted().typedDate[0][0]).toBeInstanceOf(Date)
+    })
+
+    it('does not emit on keyup when validateOnKeyup is false', () => {
+      wrapper.setProps({ validateOnKeyup: false })
+      const input = wrapper.find('input')
+      wrapper.vm.input.value = '24.04.2018'
+      input.trigger('keyup')
+      expect(wrapper.emitted().typedDate).not.toBeDefined()
+    })
+  })
+
+  describe('escape and enter handling', () => {
+    it('blurs input when escape is pressed', () => {
+      const input = wrapper.find('input')
+      const blurSpy = jest.spyOn(input.element, 'blur')
+      input.trigger('keyup', {keyCode: 27})
+      expect(blurSpy).toBeCalled()
+    })
+
+    it('blurs input when enter is pressed', () => {
+      const input = wrapper.find('input')
+      const blurSpy = jest.spyOn(input.element, 'blur')
+      input.trigger('keyup', {keyCode: 13})
+      expect(blurSpy).toBeCalled()
+    })
+  })
+
+  describe('typeable=false', () => {
+    it('does not parse on blur when typeable is false', () => {
+      wrapper.setProps({ typeable: false })
+      const input = wrapper.find('input')
+      wrapper.vm.input.value = '24.04.2018'
+      input.trigger('blur')
+      expect(wrapper.emitted().typedDate).not.toBeDefined()
+    })
+  })
+
+  describe('formattedValue', () => {
+    it('returns raw typed string when typedDate is set', () => {
+      const dateString = '24.04.2018'
+      wrapper.vm.input.value = dateString
+      wrapper.setData({ typedDate: dateString })
+      wrapper.setProps({ selectedDate: new Date(2018, 3, 24) })
+      expect(wrapper.vm.formattedValue).toEqual(dateString)
+    })
   })
 })
