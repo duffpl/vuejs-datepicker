@@ -66,6 +66,7 @@ export default {
     validateOnKeyup: Boolean,
     initialValue: Date,
     resetOnInvalidValue: Boolean,
+    disabledDates: Object,
     bootstrapStyling: Boolean,
     useUtc: Boolean
   },
@@ -152,23 +153,31 @@ export default {
         if (inputValue) {
           const parsedDate = this.parseDateFromInput(inputValue)
           if (parsedDate) {
-            this.typedDate = inputValue
-            this.$emit('typedDate', parsedDate)
+            if (this.utils.isDisabledDate(parsedDate, this.disabledDates)) {
+              this.$emit('disabledDateInput', parsedDate)
+              this.resetOrClear()
+            } else {
+              this.typedDate = inputValue
+              this.$emit('typedDate', parsedDate)
+            }
           } else {
             this.$emit('invalidInput', inputValue)
-            if (this.resetOnInvalidValue && this.initialValue) {
-              this.typedDate = false
-              this.$emit('typedDate', this.initialValue)
-            } else {
-              this.clearDate()
-              this.input.value = null
-              this.typedDate = null
-            }
+            this.resetOrClear()
           }
         }
       }
 
       this.$emit('closeCalendar')
+    },
+    resetOrClear () {
+      if (this.resetOnInvalidValue && this.initialValue) {
+        this.typedDate = false
+        this.$emit('typedDate', this.initialValue)
+      } else {
+        this.clearDate()
+        this.input.value = null
+        this.typedDate = null
+      }
     },
     clearDate () {
       this.$emit('clearDate')

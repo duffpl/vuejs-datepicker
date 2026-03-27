@@ -219,4 +219,56 @@ describe('DateInput typed dates', () => {
       expect(wrapper.emitted().typedDate).toBeDefined()
     })
   })
+
+  describe('disabled date validation on typed input', () => {
+    it('emits disabledDateInput when typed date is disabled', () => {
+      wrapper.setProps({
+        disabledDates: { from: new Date(2018, 0, 1) }
+      })
+      const input = wrapper.find('input')
+      wrapper.vm.input.value = '24.04.2018'
+      input.trigger('blur')
+      expect(wrapper.emitted().disabledDateInput).toBeDefined()
+      expect(wrapper.emitted().disabledDateInput[0][0]).toBeInstanceOf(Date)
+      expect(wrapper.emitted().disabledDateInput[0][0].getDate()).toEqual(24)
+      expect(wrapper.emitted().typedDate).not.toBeDefined()
+    })
+
+    it('does not emit disabledDateInput when typed date is not disabled', () => {
+      wrapper.setProps({
+        disabledDates: { from: new Date(2020, 0, 1) }
+      })
+      const input = wrapper.find('input')
+      wrapper.vm.input.value = '24.04.2018'
+      input.trigger('blur')
+      expect(wrapper.emitted().disabledDateInput).not.toBeDefined()
+      expect(wrapper.emitted().typedDate).toBeDefined()
+    })
+
+    it('resets to initialValue when disabled date typed and resetOnInvalidValue is true', () => {
+      const initial = new Date(2017, 5, 15)
+      wrapper.setProps({
+        disabledDates: { from: new Date(2018, 0, 1) },
+        resetOnInvalidValue: true,
+        initialValue: initial
+      })
+      const input = wrapper.find('input')
+      wrapper.vm.input.value = '24.04.2018'
+      input.trigger('blur')
+      expect(wrapper.emitted().disabledDateInput).toBeDefined()
+      expect(wrapper.emitted().typedDate).toBeDefined()
+      expect(wrapper.emitted().typedDate[0][0].getTime()).toEqual(initial.getTime())
+    })
+
+    it('clears when disabled date typed and no initialValue', () => {
+      wrapper.setProps({
+        disabledDates: { from: new Date(2018, 0, 1) }
+      })
+      const input = wrapper.find('input')
+      wrapper.vm.input.value = '24.04.2018'
+      input.trigger('blur')
+      expect(wrapper.emitted().disabledDateInput).toBeDefined()
+      expect(wrapper.emitted().clearDate).toBeDefined()
+    })
+  })
 })

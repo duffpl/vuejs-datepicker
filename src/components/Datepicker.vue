@@ -17,6 +17,7 @@
       :validateOnKeyup="validateOnKeyup"
       :initialValue="initialValue"
       :resetOnInvalidValue="resetOnInvalidValue"
+      :disabledDates="disabledDates"
       :clearButton="clearButton"
       :clearButtonIcon="clearButtonIcon"
       :calendarButton="calendarButton"
@@ -30,7 +31,8 @@
       @closeCalendar="close"
       @typedDate="setTypedDate"
       @clearDate="clearDate"
-      @invalidInput="$emit('invalidInput', $event)">
+      @invalidInput="$emit('invalidInput', $event)"
+      @disabledDateInput="$emit('disabledDateInput', $event)">
       <slot name="afterDateInput" slot="afterDateInput"></slot>
     </date-input>
 
