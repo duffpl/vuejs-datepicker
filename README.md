@@ -166,6 +166,7 @@ These events are emitted on actions in the datepicker
 | changedYear       | Object     | Year page has been changed           |
 | changedDecade     | Object     | Decade page has been changed         |
 | invalidInput      | String     | Typed date failed to parse           |
+| disabledDateInput | Date       | Typed date matches a disabled date   |
 
 
 ## Date formatting
