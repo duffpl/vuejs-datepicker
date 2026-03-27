@@ -15,6 +15,8 @@
       :typeable="typeable"
       :parseFormat="parseFormat"
       :validateOnKeyup="validateOnKeyup"
+      :initialValue="initialValue"
+      :resetOnInvalidValue="resetOnInvalidValue"
       :clearButton="clearButton"
       :clearButtonIcon="clearButtonIcon"
       :calendarButton="calendarButton"
@@ -27,7 +29,8 @@
       @showCalendar="showCalendar"
       @closeCalendar="close"
       @typedDate="setTypedDate"
-      @clearDate="clearDate">
+      @clearDate="clearDate"
+      @invalidInput="$emit('invalidInput', $event)">
       <slot name="afterDateInput" slot="afterDateInput"></slot>
     </date-input>
 
@@ -152,6 +155,14 @@ export default {
       default: null
     },
     validateOnKeyup: {
+      type: Boolean,
+      default: false
+    },
+    initialValue: {
+      type: Date,
+      default: null
+    },
+    resetOnInvalidValue: {
       type: Boolean,
       default: false
     },

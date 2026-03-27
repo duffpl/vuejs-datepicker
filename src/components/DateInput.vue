@@ -64,6 +64,8 @@ export default {
     typeable: Boolean,
     parseFormat: String,
     validateOnKeyup: Boolean,
+    initialValue: Date,
+    resetOnInvalidValue: Boolean,
     bootstrapStyling: Boolean,
     useUtc: Boolean
   },
@@ -153,9 +155,15 @@ export default {
             this.typedDate = inputValue
             this.$emit('typedDate', parsedDate)
           } else {
-            this.clearDate()
-            this.input.value = null
-            this.typedDate = null
+            this.$emit('invalidInput', inputValue)
+            if (this.resetOnInvalidValue && this.initialValue) {
+              this.typedDate = false
+              this.$emit('typedDate', this.initialValue)
+            } else {
+              this.clearDate()
+              this.input.value = null
+              this.typedDate = null
+            }
           }
         }
       }

@@ -158,4 +158,65 @@ describe('DateInput typed dates', () => {
       expect(wrapper.vm.formattedValue).toEqual(dateString)
     })
   })
+
+  describe('invalidInput event', () => {
+    it('emits invalidInput with the raw string on invalid input', () => {
+      const input = wrapper.find('input')
+      wrapper.vm.input.value = 'garbage'
+      input.trigger('blur')
+      expect(wrapper.emitted().invalidInput).toBeDefined()
+      expect(wrapper.emitted().invalidInput[0][0]).toEqual('garbage')
+    })
+
+    it('does not emit invalidInput on valid input', () => {
+      const input = wrapper.find('input')
+      wrapper.vm.input.value = '24.04.2018'
+      input.trigger('blur')
+      expect(wrapper.emitted().invalidInput).not.toBeDefined()
+    })
+  })
+
+  describe('resetOnInvalidValue', () => {
+    it('resets to initialValue on invalid input when resetOnInvalidValue is true', () => {
+      const initial = new Date(2020, 0, 1)
+      wrapper.setProps({
+        resetOnInvalidValue: true,
+        initialValue: initial
+      })
+      const input = wrapper.find('input')
+      wrapper.vm.input.value = 'garbage'
+      input.trigger('blur')
+      expect(wrapper.emitted().typedDate).toBeDefined()
+      expect(wrapper.emitted().typedDate[0][0].getTime()).toEqual(initial.getTime())
+    })
+
+    it('clears the field when resetOnInvalidValue is true but no initialValue', () => {
+      wrapper.setProps({ resetOnInvalidValue: true })
+      const input = wrapper.find('input')
+      wrapper.vm.input.value = 'garbage'
+      input.trigger('blur')
+      expect(wrapper.emitted().clearDate).toBeDefined()
+    })
+
+    it('clears the field when resetOnInvalidValue is false (default)', () => {
+      const input = wrapper.find('input')
+      wrapper.vm.input.value = 'garbage'
+      input.trigger('blur')
+      expect(wrapper.emitted().clearDate).toBeDefined()
+    })
+
+    it('emits invalidInput before resetting to initialValue', () => {
+      const initial = new Date(2020, 0, 1)
+      wrapper.setProps({
+        resetOnInvalidValue: true,
+        initialValue: initial
+      })
+      const input = wrapper.find('input')
+      wrapper.vm.input.value = 'bad'
+      input.trigger('blur')
+      expect(wrapper.emitted().invalidInput).toBeDefined()
+      expect(wrapper.emitted().invalidInput[0][0]).toEqual('bad')
+      expect(wrapper.emitted().typedDate).toBeDefined()
+    })
+  })
 })
