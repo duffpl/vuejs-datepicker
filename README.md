@@ -142,6 +142,8 @@ Inline always open version
 | typeable                      | Boolean         | false       | If true, allow the user to type the date |
 | parse-format                  | String          | null        | Moment.js format string for parsing typed input when `format` is a function |
 | validate-on-keyup             | Boolean         | false       | If true, validate typed input on every keyup (legacy behavior) |
+| initial-value                 | Date            | null        | Date to reset to when typed input is invalid (requires `reset-on-invalid-value`) |
+| reset-on-invalid-value        | Boolean         | false       | If true, reset to `initial-value` on invalid typed input |
 | use-utc                       | Boolean         | false       | use UTC for time calculations            |
 | open-date                     | Date\|String    |             | If set, open on that date                |
 | minimum-view                  | String          | 'day'       | If set, lower-level views won't show     |
@@ -163,6 +165,7 @@ These events are emitted on actions in the datepicker
 | changedMonth      | Object     | Month page has been changed          |
 | changedYear       | Object     | Year page has been changed           |
 | changedDecade     | Object     | Decade page has been changed         |
+| invalidInput      | String     | Typed date failed to parse           |
 
 
 ## Date formatting
