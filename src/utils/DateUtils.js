@@ -258,6 +258,47 @@ const utils = {
       .replace(/yy/g, 'YY')
 
     return str
+  },
+
+  isDisabledDate (date, disabledDates) {
+    if (typeof disabledDates === 'undefined' || !disabledDates) {
+      return false
+    }
+
+    let disabled = false
+
+    if (typeof disabledDates.dates !== 'undefined') {
+      disabledDates.dates.forEach((d) => {
+        if (this.compareDates(date, d)) {
+          disabled = true
+        }
+      })
+    }
+    if (typeof disabledDates.to !== 'undefined' && disabledDates.to && date < disabledDates.to) {
+      disabled = true
+    }
+    if (typeof disabledDates.from !== 'undefined' && disabledDates.from && date > disabledDates.from) {
+      disabled = true
+    }
+    if (typeof disabledDates.ranges !== 'undefined') {
+      disabledDates.ranges.forEach((range) => {
+        if (typeof range.from !== 'undefined' && range.from && typeof range.to !== 'undefined' && range.to) {
+          if (date < range.to && date > range.from) {
+            disabled = true
+          }
+        }
+      })
+    }
+    if (typeof disabledDates.days !== 'undefined' && disabledDates.days.indexOf(this.getDay(date)) !== -1) {
+      disabled = true
+    }
+    if (typeof disabledDates.daysOfMonth !== 'undefined' && disabledDates.daysOfMonth.indexOf(this.getDate(date)) !== -1) {
+      disabled = true
+    }
+    if (typeof disabledDates.customPredictor === 'function' && disabledDates.customPredictor(date)) {
+      disabled = true
+    }
+    return disabled
   }
 }
 

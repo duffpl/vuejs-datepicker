@@ -215,3 +215,56 @@ describe('toMomentFormat', () => {
     expect(DateUtils.toMomentFormat('D dsu MMMM yyyy')).toEqual('D MMMM YYYY')
   })
 })
+
+describe('isDisabledDate', () => {
+  it('returns false when disabledDates is undefined', () => {
+    expect(DateUtils.isDisabledDate(new Date(2018, 3, 24), undefined)).toEqual(false)
+  })
+
+  it('returns false when date is not disabled', () => {
+    expect(DateUtils.isDisabledDate(new Date(2018, 3, 24), {})).toEqual(false)
+  })
+
+  it('disables dates before "to"', () => {
+    const config = { to: new Date(2018, 3, 20) }
+    expect(DateUtils.isDisabledDate(new Date(2018, 3, 19), config)).toEqual(true)
+    expect(DateUtils.isDisabledDate(new Date(2018, 3, 21), config)).toEqual(false)
+  })
+
+  it('disables dates after "from"', () => {
+    const config = { from: new Date(2018, 3, 20) }
+    expect(DateUtils.isDisabledDate(new Date(2018, 3, 21), config)).toEqual(true)
+    expect(DateUtils.isDisabledDate(new Date(2018, 3, 19), config)).toEqual(false)
+  })
+
+  it('disables specific dates', () => {
+    const config = { dates: [new Date(2018, 3, 24), new Date(2018, 3, 25)] }
+    expect(DateUtils.isDisabledDate(new Date(2018, 3, 24), config)).toEqual(true)
+    expect(DateUtils.isDisabledDate(new Date(2018, 3, 26), config)).toEqual(false)
+  })
+
+  it('disables dates in ranges', () => {
+    const config = { ranges: [{ from: new Date(2018, 3, 20), to: new Date(2018, 3, 25) }] }
+    expect(DateUtils.isDisabledDate(new Date(2018, 3, 22), config)).toEqual(true)
+    expect(DateUtils.isDisabledDate(new Date(2018, 3, 26), config)).toEqual(false)
+  })
+
+  it('disables specific days of week', () => {
+    // 2018-04-22 is a Sunday (0)
+    const config = { days: [0, 6] }
+    expect(DateUtils.isDisabledDate(new Date(2018, 3, 22), config)).toEqual(true)
+    expect(DateUtils.isDisabledDate(new Date(2018, 3, 23), config)).toEqual(false)
+  })
+
+  it('disables specific days of month', () => {
+    const config = { daysOfMonth: [15, 30] }
+    expect(DateUtils.isDisabledDate(new Date(2018, 3, 15), config)).toEqual(true)
+    expect(DateUtils.isDisabledDate(new Date(2018, 3, 16), config)).toEqual(false)
+  })
+
+  it('disables via customPredictor', () => {
+    const config = { customPredictor: (date) => date.getDate() % 5 === 0 }
+    expect(DateUtils.isDisabledDate(new Date(2018, 3, 10), config)).toEqual(true)
+    expect(DateUtils.isDisabledDate(new Date(2018, 3, 11), config)).toEqual(false)
+  })
+})
